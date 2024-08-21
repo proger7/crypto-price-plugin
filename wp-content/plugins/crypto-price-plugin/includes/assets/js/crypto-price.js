@@ -40,14 +40,18 @@ jQuery(document).ready(function($) {
                 symbol: cryptoSymbol
             },
             success: function(response) {
-                if ($.isNumeric(response)) {
-                    let price = parseFloat(response);
-
+                if (response.success) {
+                    let price = parseFloat(response.data.price);
+                    let priceChange = parseFloat(response.data.price_change);
                     let formattedPrice = price % 1 === 0 ? price.toString() : price.toFixed(6);
 
                     if (formattedPrice != lastPrice) {
                         $('#crypto-price-container').text(formattedPrice + '$').fadeIn();
                         lastPrice = formattedPrice;
+
+                        let priceChangeClass = priceChange < 0 ? 'negative' : 'positive';
+                        $('#crypto-price-change-container').text(priceChange.toFixed(2) + '%').attr('class', 'price-change ' + priceChangeClass).fadeIn();
+
                         finishProgressBar();
                     }
                 }

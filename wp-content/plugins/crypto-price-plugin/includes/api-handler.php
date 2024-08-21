@@ -61,12 +61,14 @@ function get_crypto_price($symbol) {
     $data = json_decode($body, true);
 
     if (!empty($data) && isset($data[0]['current_price'])) {
-        return $data[0]['current_price'];
+        return [
+            'current_price' => $data[0]['current_price'],
+            'price_change_percentage_24h' => $data[0]['price_change_percentage_24h']
+        ];
     } else {
         return false;
     }
 }
-
 
 function get_crypto_price_cached() {
     $symbol = get_field('crypto_symbol');
@@ -76,10 +78,10 @@ function get_crypto_price_cached() {
         return $cached_price;
     }
 
-    $price = get_crypto_price($symbol);
-    if (is_numeric($price)) {
-        set_transient('crypto_price_' . $symbol, $price, 5 * MINUTE_IN_SECONDS);
+    $price_data = get_crypto_price($symbol);
+    if ($price_data) {
+        set_transient('crypto_price_' . $symbol, $price_data, 5 * MINUTE_IN_SECONDS);
     }
 
-    return $price;
+    return $price_data;
 }

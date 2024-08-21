@@ -13,3 +13,10 @@
     transition: width 0.4s ease;
 }
 
+.price-change.positive {
+    color: green;
+}
+
+.price-change.negative {
+    color: red;
+}

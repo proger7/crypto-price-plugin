@@ -19,7 +19,7 @@ add_shortcode('coin_price', 'crypto_price_shortcode');
 
 function crypto_price_shortcode($atts) {
     $symbol = get_field('crypto_symbol');
-    $coin_price = get_crypto_price_cached();
+    $coin_price_data = get_crypto_price_cached();
 
     ob_start();
     ?>
@@ -28,6 +28,7 @@ function crypto_price_shortcode($atts) {
     </div>
 
     <div id="crypto-price-container" class="coin-price-container" style="display: none;"></div>
+    <div id="crypto-price-change-container" class="price-change" style="display: none;"></div>
     <input type="hidden" id="crypto-symbol" value="<?= esc_attr($symbol); ?>">
     <?php
     return ob_get_clean();
@@ -54,13 +55,21 @@ function crypto_price_ajax_handler() {
     $symbol = isset($_POST['symbol']) ? sanitize_text_field($_POST['symbol']) : '';
 
     if (empty($symbol)) {
-        echo 'Symbol not found';
+        wp_send_json_error('Symbol not found');
         wp_die();
     }
 
-    $coin_price = get_crypto_price($symbol);
+    $coin_price_data = get_crypto_price($symbol);
 
-    echo esc_html($coin_price);
+    if ($coin_price_data) {
+        wp_send_json_success([
+            'price' => $coin_price_data['current_price'],
+            'price_change' => $coin_price_data['price_change_percentage_24h']
+        ]);
+    } else {
+        wp_send_json_error('Error fetching data');
+    }
+
     wp_die();
 }
 
